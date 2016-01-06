@@ -3,81 +3,127 @@ import java.util.ArrayList;
 import java.io.Serializable;
 import mms.mongo.utility.DatabaseConnection;
 import java.sql.*;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.MongoException;
+import org.bson.Document;
+import com.mongodb.client.FindIterable;
 public class DBMigration {
-	
+	private MongoDatabase mongoDatabase=DatabaseConnection.getDatabase("mms_new");
 	public void migrateEHVSSTable(){
-		EhvssDAO ehvssDAO=new EhvssDAO();
-		ArrayList<EHVSS> ehvssRecords=ehvssDAO.getAll();
-		System.out.println("Size of ehvss : "+ehvssRecords.size());
-      	for(EHVSS e :ehvssRecords){
-			
+		try{
+			MongoCollection<Document> ehvssCollection = mongoDatabase.getCollection("ehvss");
+			EhvssDAO ehvssDAO=new EhvssDAO();
+			ArrayList<EHVSS> ehvssRecords=ehvssDAO.getAll();
+			System.out.println("Size of ehvss : "+ehvssRecords.size());
+			for(EHVSS e :ehvssRecords){
+				Document document=new Document();
+				document.append("id",e.getId());
+				document.append("code",e.getCode());
+				document.append("name",e.getName());
+				document.append("location",e.getLocation());
+				document.append("region",e.getRegion());
+				document.append("circle",e.getCircle());
+				document.append("division",e.getDivision());
+				ehvssCollection.insertOne(document);
+				System.out.println("Successful inserted one ehvss in mongo ehvss");
+			}
+		}catch(Exception e){
+			System.out.println("Exception in migrateEHVSSTable : "+e);
 		}
 	}
 	
 	
 	public void migrate33kvFeederTable(){
-		FeederListDAO feederListDAO = new FeederListDAO();
-		EhvssDAO ehvssDAO = new EhvssDAO();
-		ArrayList<String> kv33FeederCodelist = feederListDAO.getAllDistinct33kvFeederCode();
-		for(int i = 0;i < kv33FeederCodelist.size();i++){
-			KV33Feeder kv33Feeder = new KV33Feeder(); 
-			ArrayList<FeederList> list = feederListDAO.getBykv33FeederCode(kv33FeederCodelist.get(i));
-			kv33Feeder.setCircle(list.get(0).getCIRCLE_NAME());
-			kv33Feeder.setCode(list.get(0).getKV33_FDR_NAME());
-			kv33Feeder.setDivision(list.get(0).getDIVISION());
-			kv33Feeder.setLocation("Dummy");
-			kv33Feeder.setName(list.get(0).getKV33_FDR_CODE());
-			kv33Feeder.setRegion(list.get(0).getRESION());
-			kv33Feeder.setEhvssID(ehvssDAO.getByEhvssCode(list.get(0).getEHV_SS_CODE()).getId());
-			KV33FeederDAO kv33FeederDAO = new KV33FeederDAO();
-			kv33FeederDAO.addKV33Feeder(kv33Feeder);
+		try{
+			MongoCollection<Document> kv33FeederCollection = mongoDatabase.getCollection("kv33feeder");
+			MongoCollection<Document> ehvssCollection = mongoDatabase.getCollection("ehvss");
+			KV33FeederDAO ehvssDAO=new KV33FeederDAO();
+			ArrayList<KV33Feeder> ehvssRecords=ehvssDAO.getAll();
+			System.out.println("Size of 33KVFeeder : "+ehvssRecords.size());
+			for(KV33Feeder e :ehvssRecords){
+				Document document=new Document();
+				document.append("id",e.getId());
+				document.append("code",e.getCode());
+				document.append("name",e.getName());
+				document.append("location",e.getLocation());
+				document.append("region",e.getRegion());
+				document.append("circle",e.getCircle());
+				document.append("division",e.getDivision());
+				Document query=new Document("id",e.getEhvssID());
+				FindIterable<Document> ehvss=ehvssCollection.find(query);
+				for(Document u:ehvss){
+					document.append("ehvss_id",u.getObjectId("_id"));
+					break;
+				}
+				kv33FeederCollection.insertOne(document);
+				System.out.println("Successful inserted one 33KVFeeder in mongo kv33Feeder");
+			}
+		}catch(Exception e){
+			System.out.println("Exception in migrate33kvFeederTable : "+e);
 		}
 	}
 	
 	public void migrateSubstationTable(){
-		FeederListDAO feederListDAO = new FeederListDAO();
-		SubstationDAO substationDAO = new SubstationDAO();
-		KV33FeederDAO kv33FeederDAO = new KV33FeederDAO();
-		ArrayList<String> substationCodeList = feederListDAO.getAllDistinctSubstationCode();
-		for(int i = 0;i < substationCodeList.size();i++){
-			Substation substation = new Substation();
-			//System.out.println("Substation code : "+substationCodeList.get(i)); 
-			ArrayList<FeederList> list = feederListDAO.getBySubstationCode(substationCodeList.get(i));
-			substation.setCircle(list.get(0).getCIRCLE_NAME());
-			substation.setCode(list.get(0).getKV_SUBSTATION_CODE_33());
-			substation.setDivision(list.get(0).getDIVISION());
-			substation.setLocation("Dummy");
-			substation.setName(list.get(0).getSUBSTATION_NAME_33_11());
-			substation.setRegion(list.get(0).getRESION());
-			substation.setDc("Dummy");
-			substation.setKv33FeederID(kv33FeederDAO.getBykv33FeederCode(list.get(0).getKV33_FDR_NAME()).getId());
-			substationDAO.addSubstation(substation);
+		try{
+			MongoCollection<Document> substationCollection = mongoDatabase.getCollection("substation");
+			MongoCollection<Document> kv33FeederCollection = mongoDatabase.getCollection("kv33feeder");
+			SubstationDAO ehvssDAO=new SubstationDAO();
+			ArrayList<Substation> ehvssRecords=ehvssDAO.getAll();
+			System.out.println("Size of Substations : "+ehvssRecords.size());
+			for(Substation e :ehvssRecords){
+				Document document=new Document();
+				document.append("id",e.getId());
+				document.append("code",e.getCode());
+				document.append("name",e.getName());
+				document.append("location",e.getLocation());
+				document.append("region",e.getRegion());
+				document.append("circle",e.getCircle());
+				document.append("division",e.getDivision());
+				document.append("dc",e.getDc());
+				Document query=new Document("id",e.getKv33FeederID());
+				FindIterable<Document> kv33Feeders=kv33FeederCollection.find(query);
+				for(Document u:kv33Feeders){
+					document.append("kv33feeder_id",u.getObjectId("_id"));
+					break;
+				}
+				substationCollection.insertOne(document);
+				System.out.println("Successful inserted one Substation in mongo Substation");
+			}
+		}catch(Exception e){
+			System.out.println("Exception in migrateSubstationTable : "+e);
 		}
 	}
 	
 	public void migrate11kvFeederTable(){
-		FeederListDAO feederListDAO = new FeederListDAO();
-		SubstationDAO substationDAO = new SubstationDAO();
-		KV11FeederDAO kv11FeederDAO = new KV11FeederDAO();
-		ArrayList<String> kv11Feederlist = feederListDAO.getAllDistinct11kvFeederCode();
-		for(int i = 0;i < kv11Feederlist.size();i++){
-			KV11Feeder kv11Feeder = new KV11Feeder(); 
-			ArrayList<FeederList> list = feederListDAO.getBykv11FeederCode(kv11Feederlist.get(i));
-			kv11Feeder.setCircle(list.get(0).getCIRCLE_NAME());
-			kv11Feeder.setCode(list.get(0).getKV11FDR_CODE());
-			kv11Feeder.setDivision(list.get(0).getDIVISION());
-			kv11Feeder.setLocation("Dummy");
-			kv11Feeder.setDc("Dummy");
-			kv11Feeder.setName(list.get(0).getKV11FDR_NAME());
-			kv11Feeder.setRegion(list.get(0).getRESION());
-			if(list.get(0).getCATEGORY()==null){
-				kv11Feeder.setFeederType("DUMMY");	
-			}else{
-				kv11Feeder.setFeederType(list.get(0).getCATEGORY());
+		try{
+			MongoCollection<Document> substationCollection = mongoDatabase.getCollection("substation");
+			MongoCollection<Document> kv11FeederCollection = mongoDatabase.getCollection("kv11feeder");
+			KV11FeederDAO ehvssDAO=new KV11FeederDAO();
+			ArrayList<KV11Feeder> ehvssRecords=ehvssDAO.getAll();
+			System.out.println("Size of 11KVFeeders : "+ehvssRecords.size());
+			for(KV11Feeder e :ehvssRecords){
+				Document document=new Document();
+				document.append("id",e.getId());
+				document.append("code",e.getCode());
+				document.append("name",e.getName());
+				document.append("location",e.getLocation());
+				document.append("region",e.getRegion());
+				document.append("circle",e.getCircle());
+				document.append("division",e.getDivision());
+				document.append("dc",e.getDc());
+				document.append("feeder_type",e.getFeederType());
+				Document query=new Document("id",e.getSubstationID());
+				FindIterable<Document> substations=substationCollection.find(query);
+				for(Document u:substations){
+					document.append("substation_id",u.getObjectId("_id"));
+					break;
+				}
+				kv11FeederCollection.insertOne(document);
+				System.out.println("Successful inserted one 11KV Feeder in mongo KV11Feeder");
 			}
-			
-			kv11Feeder.setSubstationID(substationDAO.getBySubstationCode(list.get(0).getKV_SUBSTATION_CODE_33()).getId());
-			kv11FeederDAO.add11KVFeeder(kv11Feeder);
+		}catch(Exception e){
+			System.out.println("Exception in migrate11kvFeederTable : "+e);
 		}
 	}
 	
@@ -85,14 +131,14 @@ public class DBMigration {
 	public static void main(String[] args) {
 		System.out.println("DB Migration to mongo started");
 		DBMigration dbMigration = new DBMigration();
-		dbMigration.migrateEHVSSTable();
-		System.out.println("Migration Successful for EHVSS");
-		/*dbMigration.migrate33kvFeederTable();
-		System.out.println("Migration Successful for 33KV");
-		dbMigration.migrateSubstationTable();
-		System.out.println("Migration Successful for substation");
-		dbMigration.migrate11kvFeederTable();
-		System.out.println("Migration Successful for 11KV");*/
+		//dbMigration.migrateEHVSSTable();
+		//System.out.println("Migration Successful for EHVSS");
+		//dbMigration.migrate33kvFeederTable();
+		//System.out.println("Migration Successful for 33KV");
+		//dbMigration.migrateSubstationTable();
+		//System.out.println("Migration Successful for substation");
+		//dbMigration.migrate11kvFeederTable();
+		System.out.println("Migration Successful for 11KV");
 	}
 }
 class EHVSS {
@@ -277,22 +323,22 @@ class FeederList {
 	}
 	public String toString() {
 		return "FeederList [RESION=" + RESION + ", CIRCLE_NAME=" + CIRCLE_NAME
-				+ ", DIVISION=" + DIVISION + ", EHV_SS_CODE=" + EHV_SS_CODE
-				+ ", EHV_SS_NAME=" + EHV_SS_NAME + ", KV33_FDR_CODE="
-				+ KV33_FDR_CODE + ", KV33_FDR_NAME=" + KV33_FDR_NAME
-				+ ", GROUP_ALLOTED=" + GROUP_ALLOTED
-				+ ", SUBSTATION_NAME_33_11=" + SUBSTATION_NAME_33_11
-				+ ", KV_SUBSTATION_CODE_33=" + KV_SUBSTATION_CODE_33
-				+ ", KV11FDR_NAME=" + KV11FDR_NAME + ", KV11FDR_CODE="
-				+ KV11FDR_CODE + ", CATEGORY=" + CATEGORY + ", TYPE=" + TYPE
-				+ ", UID=" + UID + "]";
+		+ ", DIVISION=" + DIVISION + ", EHV_SS_CODE=" + EHV_SS_CODE
+		+ ", EHV_SS_NAME=" + EHV_SS_NAME + ", KV33_FDR_CODE="
+		+ KV33_FDR_CODE + ", KV33_FDR_NAME=" + KV33_FDR_NAME
+		+ ", GROUP_ALLOTED=" + GROUP_ALLOTED
+		+ ", SUBSTATION_NAME_33_11=" + SUBSTATION_NAME_33_11
+		+ ", KV_SUBSTATION_CODE_33=" + KV_SUBSTATION_CODE_33
+		+ ", KV11FDR_NAME=" + KV11FDR_NAME + ", KV11FDR_CODE="
+		+ KV11FDR_CODE + ", CATEGORY=" + CATEGORY + ", TYPE=" + TYPE
+		+ ", UID=" + UID + "]";
 	}
 	public FeederList(String rESION, String cIRCLE_NAME, String dIVISION,
-			String eHV_SS_CODE, String eHV_SS_NAME, String kV33_FDR_CODE,
-			String kV33_FDR_NAME, String gROUP_ALLOTED,
-			String sUBSTATION_NAME_33_11, String kV_SUBSTATION_CODE_33,
-			String kV11FDR_NAME, String kV11FDR_CODE, String cATEGORY,
-			String tYPE, String uID) {
+		String eHV_SS_CODE, String eHV_SS_NAME, String kV33_FDR_CODE,
+		String kV33_FDR_NAME, String gROUP_ALLOTED,
+		String sUBSTATION_NAME_33_11, String kV_SUBSTATION_CODE_33,
+		String kV11FDR_NAME, String kV11FDR_CODE, String cATEGORY,
+		String tYPE, String uID) {
 		
 		RESION = rESION;
 		CIRCLE_NAME = cIRCLE_NAME;
@@ -311,7 +357,7 @@ class FeederList {
 		UID = uID;
 	}
 	public FeederList() {
-	
+
 	}
 	
 	
@@ -331,8 +377,8 @@ class KV11Feeder {
 	private String feederType;
 
 	public KV11Feeder(String id, String name, String code, String location,
-			String region, String circle, String division, String dc,
-			String substationID,String feederType) {
+		String region, String circle, String division, String dc,
+		String substationID,String feederType) {
 		this.id = id;
 		this.name = name;
 		this.code = code;
@@ -345,7 +391,7 @@ class KV11Feeder {
 		this.feederType=feederType;
 	}
 	public KV11Feeder(String name, String code, String location, String region,
-			String circle, String division, String dc, String substationID,String feederType) {
+		String circle, String division, String dc, String substationID,String feederType) {
 		this.name = name;
 		this.code = code;
 		this.location = location;
@@ -433,7 +479,7 @@ class KV33Feeder {
 	private String division;
 	private String ehvssID;
 	public KV33Feeder(String id, String name, String code, String location,
-			String region, String circle, String division, String ehvssID) {
+		String region, String circle, String division, String ehvssID) {
 		this.id = id;
 		this.name = name;
 		this.code = code;
@@ -444,7 +490,7 @@ class KV33Feeder {
 		this.ehvssID = ehvssID;
 	}
 	public KV33Feeder(String name, String code, String location, String region,
-			String circle, String division, String ehvssID) {
+		String circle, String division, String ehvssID) {
 		this.name = name;
 		this.code = code;
 		this.location = location;
@@ -517,8 +563,8 @@ class Substation {
 	private String dc;
 	private String kv33FeederID;
 	public Substation(String id, String name, String code, String location,
-			String region, String circle, String division, String dc,
-			String kv33FeederID) {
+		String region, String circle, String division, String dc,
+		String kv33FeederID) {
 		this.id = id;
 		this.name = name;
 		this.code = code;
@@ -530,7 +576,7 @@ class Substation {
 		this.kv33FeederID = kv33FeederID;
 	}
 	public Substation(String name, String code, String location, String region,
-			String circle, String division, String dc, String kv33FeederID) {
+		String circle, String division, String dc, String kv33FeederID) {
 		this.name = name;
 		this.code = code;
 		this.location = location;
@@ -1285,6 +1331,41 @@ class KV11FeederDAO {
 		return added;
 	}
 
+	public ArrayList<KV11Feeder> getAll() {
+		ArrayList<KV11Feeder> kv11Feeders=null;
+		Connection connection = DatabaseConnection.getConnection("mms_new");
+		try {
+			PreparedStatement ps = connection.prepareStatement("SELECT * FROM kv11feeder");
+			ResultSet rs=ps.executeQuery();
+			kv11Feeders=new ArrayList<KV11Feeder>();
+			while(rs.next()){
+				KV11Feeder kv11Feeder = new KV11Feeder();
+				kv11Feeder.setId(String.valueOf(rs.getInt(1)));
+				kv11Feeder.setName(rs.getString(3).trim());
+				kv11Feeder.setCode(rs.getString(2).trim());
+				kv11Feeder.setLocation(rs.getString(4).trim());
+				kv11Feeder.setRegion(rs.getString(5).trim());
+				kv11Feeder.setCircle(rs.getString(6).trim());
+				kv11Feeder.setDivision(rs.getString(7).trim());
+				kv11Feeder.setDc(rs.getString(8).trim());
+				kv11Feeder.setSubstationID(rs.getString(9).trim());
+				kv11Feeder.setFeederType(rs.getString(10).trim());
+				kv11Feeders.add(kv11Feeder);
+			}
+			System.out.println("Number of 11KV Feeders :"+kv11Feeders.size());
+		} catch (SQLException e) {
+			System.out.println("Exception in class : KV33FeederDAO : method : [getAll]"+e);
+		}finally{
+			try {
+				connection.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return kv11Feeders;
+	}
+
 	public ArrayList<KV11Feeder> getByCode(String code){
 		System.out.println("Get Feeder by code started for code : "+code);
 		Connection connection = DatabaseConnection.getConnection("mms_new");
@@ -1556,17 +1637,17 @@ class SubstationDAO {
 		try {
 			substations=getByCode(substation.getCode());
 			if(substations==null || substations.size()==0){
-			PreparedStatement ps = connection.prepareStatement("insert into substation(code, name, location, region, circle, division, dc, kv33feeder_id) VALUES(?,?,?,?,?,?,?,?)");
-			ps.setString(1,substation.getCode());
-			ps.setString(2,substation.getName());
-			ps.setString(3,"DUMMY");
-			ps.setString(4,substation.getRegion());
-			ps.setString(5,substation.getCircle());
-			ps.setString(6,substation.getDivision());
-			ps.setString(7,"DUMMY");
-			ps.setString(8,substation.getKv33FeederID());
-			ps.executeUpdate();
-			added=true;	
+				PreparedStatement ps = connection.prepareStatement("insert into substation(code, name, location, region, circle, division, dc, kv33feeder_id) VALUES(?,?,?,?,?,?,?,?)");
+				ps.setString(1,substation.getCode());
+				ps.setString(2,substation.getName());
+				ps.setString(3,"DUMMY");
+				ps.setString(4,substation.getRegion());
+				ps.setString(5,substation.getCircle());
+				ps.setString(6,substation.getDivision());
+				ps.setString(7,"DUMMY");
+				ps.setString(8,substation.getKv33FeederID());
+				ps.executeUpdate();
+				added=true;	
 			}else{
 				errorBean.setErrorMessage("Substation Code Already Exist. Please provide Different Substation Code");
 				added=false;
@@ -1794,21 +1875,21 @@ class SubstationDAO {
 
 class ErrorBean implements Serializable {
 
-    private String errorMessage = "";
-    public String getErrorMessage() {
-        return errorMessage;
-    }
+	private String errorMessage = "";
+	public String getErrorMessage() {
+		return errorMessage;
+	}
 
-    
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
 
-    public ErrorBean() {
-    }
+	public void setErrorMessage(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
 
-    public ErrorBean(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
+	public ErrorBean() {
+	}
+
+	public ErrorBean(String errorMessage) {
+		this.errorMessage = errorMessage;
+	}
 
 }
