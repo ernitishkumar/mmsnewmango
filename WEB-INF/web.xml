@@ -1,0 +1,140 @@
+<web-app>
+	<welcome-file-list>  
+		<welcome-file>index.jsp</welcome-file>  
+	</welcome-file-list>  
+	<servlet>
+		<servlet-name>Login</servlet-name>
+		<servlet-class>mms.mongo.servlets.Login</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Login</servlet-name>
+		<url-pattern>/Login</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>GetCircles</servlet-name>
+		<servlet-class>mms.com.servlets.GetCircles</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GetCircles</servlet-name>
+		<url-pattern>/GetCircles</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>GetDivisions</servlet-name>
+		<servlet-class>mms.com.servlets.GetDivisions</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GetDivisions</servlet-name>
+		<url-pattern>/GetDivisions</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>GetEhvssNames</servlet-name>
+		<servlet-class>mms.com.servlets.GetEhvssNames</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GetEhvssNames</servlet-name>
+		<url-pattern>/GetEhvssNames</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>GetKV33FeederNames</servlet-name>
+		<servlet-class>mms.com.servlets.GetKV33FeederNames</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GetKV33FeederNames</servlet-name>
+		<url-pattern>/GetKV33FeederNames</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>GetSubstationNames</servlet-name>
+		<servlet-class>mms.com.servlets.GetSubstationNames</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GetSubstationNames</servlet-name>
+		<url-pattern>/GetSubstationNames</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>AddEHVSSDetails</servlet-name>
+		<servlet-class>mms.com.servlets.AddEHVSSDetails</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AddEHVSSDetails</servlet-name>
+		<url-pattern>/AddEHVSSDetails</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>AddKV33FeederDetails</servlet-name>
+		<servlet-class>mms.com.servlets.AddKV33FeederDetails</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AddKV33FeederDetails</servlet-name>
+		<url-pattern>/AddKV33FeederDetails</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>AddSubstationDetails</servlet-name>
+		<servlet-class>mms.com.servlets.AddSubstationDetails</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AddSubstationDetails</servlet-name>
+		<url-pattern>/AddSubstationDetails</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>AddKV11FeederDetails</servlet-name>
+		<servlet-class>mms.com.servlets.AddKV11FeederDetails</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AddKV11FeederDetails</servlet-name>
+		<url-pattern>/AddKV11FeederDetails</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>EHVSSController</servlet-name>
+		<servlet-class>mms.com.servlets.EHVSSController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>EHVSSController</servlet-name>
+		<url-pattern>/EHVSSController</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>KV33FeederController</servlet-name>
+		<servlet-class>mms.com.servlets.KV33FeederController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>KV33FeederController</servlet-name>
+		<url-pattern>/KV33FeederController</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>SubstationController</servlet-name>
+		<servlet-class>mms.com.servlets.SubstationController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SubstationController</servlet-name>
+		<url-pattern>/SubstationController</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>KV11FeederController</servlet-name>
+		<servlet-class>mms.com.servlets.KV11FeederController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>KV11FeederController</servlet-name>
+		<url-pattern>/KV11FeederController</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Logout</servlet-name>
+		<servlet-class>mms.mongo.servlets.Logout</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Logout</servlet-name>
+		<url-pattern>/Logout</url-pattern>
+	</servlet-mapping>
+</web-app>
