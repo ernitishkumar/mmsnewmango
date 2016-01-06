@@ -1,0 +1,1 @@
+java -classpath c:\tomcat7\webapps\mmsnewmongo\WEB-INF\lib\mongodb-driver-3.2.0.jar;c:\tomcat7\webapps\mmsnewmongo\WEB-INF\lib\mongodb-driver-core-3.2.0.jar;c:\tomcat7\webapps\mmsnewmongo\WEB-INF\lib\bson-3.2.0.jar;c:\tomcat7\webapps\mmsnewmongo\WEB-INF\lib\mysql.jar;. mms.mongo.utility.DBMigration

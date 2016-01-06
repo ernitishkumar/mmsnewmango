@@ -1,26 +1,16 @@
-package mms.com.utility;
+package mms.mongo.utility;
 import java.util.ArrayList;
-import java.sql.*;
 import java.io.Serializable;
-import mms.com.utility.DatabaseConnection;
+import mms.mongo.utility.DatabaseConnection;
+import java.sql.*;
 public class DBMigration {
-
-	//private Connection connection = DatabaseConnection.getConnection("mms_new");
 	
 	public void migrateEHVSSTable(){
-		FeederListDAO feederListDAO = new FeederListDAO();
-		ArrayList<String> ehvssCodelist = feederListDAO.getAllDistinctEHVSSCode();
-		for(int i = 0;i < ehvssCodelist.size();i++){
-			EHVSS ehvss = new EHVSS(); 
-			ArrayList<FeederList> list = feederListDAO.getByCode(ehvssCodelist.get(i));
-			ehvss.setCircle(list.get(0).getCIRCLE_NAME());
-			ehvss.setCode(list.get(0).getEHV_SS_CODE());
-			ehvss.setDivision(list.get(0).getDIVISION());
-			ehvss.setLocation("Dummy");
-			ehvss.setName(list.get(0).getEHV_SS_NAME());
-			ehvss.setRegion(list.get(0).getRESION());
-			EhvssDAO ehvssDAO = new EhvssDAO();
-			ehvssDAO.addEHVSS(ehvss);
+		EhvssDAO ehvssDAO=new EhvssDAO();
+		ArrayList<EHVSS> ehvssRecords=ehvssDAO.getAll();
+		System.out.println("Size of ehvss : "+ehvssRecords.size());
+      	for(EHVSS e :ehvssRecords){
+			
 		}
 	}
 	
@@ -93,15 +83,16 @@ public class DBMigration {
 	
 	
 	public static void main(String[] args) {
+		System.out.println("DB Migration to mongo started");
 		DBMigration dbMigration = new DBMigration();
 		dbMigration.migrateEHVSSTable();
 		System.out.println("Migration Successful for EHVSS");
-		dbMigration.migrate33kvFeederTable();
+		/*dbMigration.migrate33kvFeederTable();
 		System.out.println("Migration Successful for 33KV");
 		dbMigration.migrateSubstationTable();
 		System.out.println("Migration Successful for substation");
 		dbMigration.migrate11kvFeederTable();
-		System.out.println("Migration Successful for 11KV");
+		System.out.println("Migration Successful for 11KV");*/
 	}
 }
 class EHVSS {
@@ -1800,8 +1791,6 @@ class SubstationDAO {
 		return substation;
 	}
 }
-
-
 
 class ErrorBean implements Serializable {
 
