@@ -1,4 +1,4 @@
-package mms.com.beans;
+package mms.mongo.beans;
 
 public class EHVSS {
 
